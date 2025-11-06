@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Knowledge Bank</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],   // $...$ をインライン
+        displayMath: [['$$', '$$']] // $$...$$ をブロック
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+
+  <!-- Clipboard.js for copy button -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+
+
+</head>
+
+<body>
+  <div id="sidebar"></div>
+  <div id="content">
+    <h1 id="topic-title">Topic</h1>
+    <div id="content">Loading...</div>
+  </div>
+
+  <script>
+    // import sidebar
+    fetch('sidebar.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('sidebar').innerHTML = html);
+
+    // get topic from URL
+    const params = new URLSearchParams(window.location.search);
+    const topic = params.get('topic') || 'notyet';
+    document.getElementById('topic-title').textContent = topic.toUpperCase();
+
+    // fetch markdown
+    const contentDiv = document.getElementById('content');
+    const filePath = `pages/${topic}.md`;
+
+    fetch(filePath)
+      .then(response => {
+        if (!response.ok) {
+          // if the file does not exist notyet.md
+          return fetch('pages/notyet.md');
+        }
+        return response;
+      })
+      .then(response => response.text())
+      .then(text => {
+
+        // 1️⃣ まず最初に code block 専用の :::example を処理
+        text = text.replace(/:::example\s([\s\S]*?):::/g, (match, p1) => {
+          // ```lang\n ... ``` の場合だけ code block として扱う
+          const codeMatch = p1.match(/^```(\w+)?\n([\s\S]*?)```$/m);
+          if (codeMatch) {
+            const lang = codeMatch[1] || '';
+            const code = codeMatch[2];
+            return `<div class="example"><pre><code class="language-${lang}">${code}</code></pre></div>`;
+          } else {
+            // codeブロックがない場合は、そのまま example として
+            return `<div class="example">${p1.trim()}</div>`;
+          }
+        });
+
+
+        // 2️⃣ 次に simple なブロック系（note, tip, warning, idea, theory）
+        text = text.replace(/:::note\s([\s\S]*?):::/g, '<div class="note">$1</div>');
+        text = text.replace(/:::tip\s([\s\S]*?):::/g, '<div class="tip">$1</div>');
+        text = text.replace(/:::warning\s([\s\S]*?):::/g, '<div class="warning">$1</div>');
+        text = text.replace(/:::idea\s([\s\S]*?):::/g, '<div class="idea">$1</div>');
+        text = text.replace(/:::theory\s([\s\S]*?):::/g, '<div class="theory">$1</div>');
+        text = text.replace(/:::question\s([\s\S]*?):::/g, '<div class="question">$1</div>');
+
+        // 3️⃣ YouTube 埋め込み
+        text = text.replace(/:::youtube\s([\s\S]*?):::/g, (match, p1) => {
+          const videoIdMatch = p1.match(/v=([a-zA-Z0-9_-]+)/);
+          if (videoIdMatch) {
+            const videoId = videoIdMatch[1];
+            return `
+      <div class="youtube-container">
+        <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+      </div>`;
+          } else {
+            return `<div class="youtube-container">Invalid YouTube URL</div>`;
+          }
+        });
+
+
+        // 4️⃣ Paper 埋め込み（タイトル + URL）
+        text = text.replace(/:::paper\s([\s\S]*?):::/g, (match, content) => {
+          const line = content.trim();
+          const paperMatch = line.match(/^(.*?)\s*(?:[-–—|])\s*(https?:\/\/\S+)/);
+          if (!paperMatch) return `<div class="paper">${line}</div>`;
+
+          const title = paperMatch[1].trim();
+          const url = paperMatch[2].trim();
+          const domain = new URL(url).hostname.replace(/^www\./, '');
+          const favicon = `https://s2.googleusercontent.com/s2/favicons?sz=64&domain=${domain}`;
+
+          return `<div class="paper">
+          <a href="${url}" target="_blank" rel="noopener noreferrer">
+            <img src="${favicon}" alt="" class="paper-icon" />
+            <div class="paper-text">
+              <div class="paper-title">${title}</div>
+              <div class="paper-domain">${domain}</div>
+            </div>
+          </a></div>`;
+        });
+
+
+        // 5️⃣ 最後に Math の一時置換
+        const blockMath = [];
+        text = text.replace(/\$\$([\s\S]+?)\$\$/g, (match, p1) => {
+          blockMath.push(p1);
+          return `@@BLOCKMATH${blockMath.length - 1}@@`;
+        });
+
+        const inlineMath = [];
+        text = text.replace(/(?<!@)\\?\$([^\$]+?)\\?\$/g, (m, p) => {
+          inlineMath.push(p);
+          return `@@INLINEMATH${inlineMath.length - 1}@@`;
+        });
+        console.log("Before paper:", text);
+
+        // --- Markdown → HTML ---
+        let html = marked.parse(text);
+
+        console.log("Bhtml paper:", html);
+
+        html = html.replace(/@@BLOCKMATH(\d+)@@/g, (match, idx) => `$$${blockMath[idx]}$$`);
+        html = html.replace(/@@INLINEMATH(\d+)@@/g, (match, idx) => `$${inlineMath[idx]}$`);
+
+        contentDiv.innerHTML = html;
+
+        contentDiv.querySelectorAll('h2, h3').forEach(el => {
+          el.classList.add('page');
+        });
+
+        //
+        if (window.Prism) {
+          Prism.highlightAll();
+        }
+
+        //
+        document.querySelectorAll('.example > pre > code').forEach((codeBlock) => {
+          const button = document.createElement('button');
+          button.className = 'copy-button';
+          button.textContent = 'Copy';
+          codeBlock.parentNode.insertBefore(button, codeBlock);
+
+          button.addEventListener('click', () => {
+            navigator.clipboard.writeText(codeBlock.textContent);
+            button.textContent = 'Copied!';
+            setTimeout(() => (button.textContent = 'Copy'), 1500);
+          });
+        });
+
+        // MathJax render
+        if (window.MathJax) {
+          MathJax.typesetClear && MathJax.typesetClear();
+          MathJax.typesetPromise([contentDiv])
+            .then(() => console.log("✅ MathJax rendered"))
+            .catch(err => console.error("❌ MathJax error:", err));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        contentDiv.innerHTML = "<p>Error loading content.</p>";
+      });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+
+</html>

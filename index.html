@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Learning Records</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <main class="content">
+    <h1>Welcome to Learning Records</h1>
+    <p class="page-description">
+
+      This page contains memos to keep my understanding fresh.
+    </p>
+    <h2>Visualization of contents connections</h2>
+    <div id="graph"></div>
+    <script src="script.js"></script>
+  </main>
+
+  <script>
+    fetch("sidebar.html")
+      .then(res => res.text())
+      .then(html => document.getElementById("sidebar").innerHTML = html);
+  </script>
+</body>
+
+</html>

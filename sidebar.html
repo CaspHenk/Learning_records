@@ -1,0 +1,60 @@
+<h2>Learning Records</h2>
+<ul>
+  <li><a href="index.html">Home</a></li>
+</ul>
+<h2>Dreamer project</h2>
+<ul class="sidebar">
+
+  <li>Dreamer
+    <ul>
+      <li><a href="page.html?topic=rl">RL Basics</a></li>
+      <li><a href="page.html?topic=world_model">World Model training</a></li>
+      <li><a href="page.html?topic=ac">Actor Critic learning</a></li>
+    </ul>
+  </li>
+
+  <li>Hebbian Learning
+    <ul>
+      <li><a href="page.html?topic=hebb_learning">Hebbian Learning Basics</a></li>
+    </ul>
+  </li>
+
+  <li>Hebbian World Models
+    <ul>
+      <li><a href="page.html?topic=hwm">Idea of the project</a></li>
+      <li><a href="page.html?topic=impl_strat">Implementation strategies</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Cuboid Histology Quality Control</h2>
+<ul class="sidebar">
+
+  <li>Project
+    <ul>
+      <li><a href="page.html?topic=chqc_overview">Project Overview</a></li>
+      <li><a href="page.html?topic=segmentation">Segmentation</a></li>
+      <li><a href="page.html?topic=metrics">Metrics</a></li>
+    </ul>
+  </li>
+</ul>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const subMenus = document.querySelectorAll("#sidebar li > ul");
+    subMenus.forEach(sub => {
+      const parent = sub.parentElement;
+      parent.classList.add("has-sub");
+
+
+      const toggleTarget = parent.firstElementChild;
+      toggleTarget.addEventListener("click", e => {
+        if (e.target.tagName.toLowerCase() === "a") return;
+        e.stopPropagation();
+        parent.classList.toggle("open");
+      });
+    });
+  });
+</script>
