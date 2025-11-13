@@ -1,15 +1,15 @@
 const nodes = [
-  { id: "VAE" },
-  { id: "VQVAE" },
-  { id: "PPO" },
-  { id: "RL" },
-  { id: "DCM" }
+  { id: "CHQC" },
+  { id: "Segmentation" },
+  { id: "World models" },
+  { id: "HWM" },
+  { id: "Hebbian learning" }
 ];
 
 const links = [
-  { source: "VAE", target: "VQVAE" },
-  { source: "PPO", target: "RL" },
-  { source: "RL", target: "DCM" }
+  { source: "CHQC", target: "Segmentation" },
+  { source: "World models", target: "HWM" },
+  { source: "HWM", target: "Hebbian learning" }
 ];
 
 const width = document.getElementById('graph').clientWidth;
