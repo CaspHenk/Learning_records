@@ -1,9 +1,14 @@
 # Reinforcement learning Basics
 
+## Overview
+
+Reinforcement Learning (RL) is a way for an **agent** to learn how to act in a certain environment by trial and error. Its goal is to learn a **policy**, which is a mapping from state to action that maximizes expected long-term reward (in other words, make the agent understand which action it has to do given a certain state to reach the final goal as fast as possible).
+
+There are two ways of doing RL that I learnt (for now) and they both follow this idea presented above.
+
 ## Policy Learning
 
-![RL_principles](imgs/RL_principles.png)
-*Basic policy learning loop*
+![RL_principles](imgs/RL_principles.png)<p style="text-align: center;"> *Basic policy learning loop* </p>
 
 **Policy learning** aims to adjust parameters $\theta$ of the policy using gradients derived from experience (learning method can vary, the one used for actor-critic learning is described in the corresponding chapter). In math form, it looks like this:
 
@@ -77,11 +82,5 @@ Their learning method is fundamentally different:
 | **Scalability** | High for large networks | Computationally expensive |
 | **Local vs. Global Search** | Local opt. process (follows grad. of perf. fct.) | Global search (due to variety of individuals) |
 | **Applicable to** | Differentiable models | Any model, even rule-based controllers (Hebbian...) |
-
-:::
-
-:::question
-
-**What's the main issue with RL that I'm trying to solve with this project?**
 
 :::
