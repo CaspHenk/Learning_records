@@ -1,11 +1,9 @@
 # Reinforcement learning Basics
 
-## Overview
-
-**Reinforcement learning** (RL) ...
-
-
 ## Policy Learning
+
+![RL_principles](imgs/RL_principles.png)
+*Basic policy learning loop*
 
 **Policy learning** aims to adjust parameters $\theta$ of the policy using gradients derived from experience (learning method can vary, the one used for actor-critic learning is described in the corresponding chapter). In math form, it looks like this:
 
@@ -28,7 +26,7 @@ Here, no gradient is needed as this method treats learning as a black-box optimi
 
 $$\max_{\theta} f(\theta),$$
 
-where $f(\theta)$ is the total fitness. Only the performance at the end of the episode is considered, therefore there is no need for gradients, making it practical for discontinuous environment functions.
+where $f(\theta)$ is the fitness. One notices that only the cumulative reward at the end of the episode is considered, therefore there is no need for gradients, making it practical for discontinuous environment functions, but also that fine-grain information happening at each step is lost.
 
 Some components are important to highlight with this method:
 
@@ -40,13 +38,17 @@ Some components are important to highlight with this method:
 
 :::question
 
-***What's the reward of an environment, and what's the difference with fitness?***
+**What's the reward of an environment, and what's the difference with fitness?**
+
+The **reward** indicates how good a specific action is for a given state and indicates immediate progress towards the environment's objective.
+
+The **fitness** is a different concept used in EAs (described above), and represents the overall performance of an indiviudal over its lifetime, and is computed as the sum (or average) of all rewards obtained during the said lifetime. It measures how good the policy was over its whole lifetime.
 
 :::
 
 :::question
 
-***How does a policy actually impact a controller?***
+**How does a policy actually impact a controller?**
 
 The goal of a controller on its own (given a certain loss function) is to map its current state to control signals, and using continuous feedback to quantify control error (tracking error, ...). If it's able to backpropagate through its loss function, then great! The optimization of low-level motor dynamics/state-control mappings is possible. However, it does not know which goal to pursue, as the loss function is not reward/objective-based.
 
@@ -60,7 +62,7 @@ The thing is that in this case, $\theta_{goal}$ is fixed, but in such a dynamic 
 
 :::question
 
-***What's the difference between Policy learning and Evolutionary Algorithms (EA)?***
+**What's the difference between Policy learning and Evolutionary Algorithms (EA)?**
 
 Their learning method is fundamentally different:
 
@@ -73,15 +75,13 @@ Their learning method is fundamentally different:
 | **Sample efficiency** | High (with replay or model-based) | Low (lots of steps needed to learn for each ep. for each ind.) |
 | **Exploration** | Via stochasticity in policy | Via population diversity (mutations) |
 | **Scalability** | High for large networks | Computationally expensive |
-| **Local vs. Global Search** | Local optimization process (sensitive to local minima) | Global search (due to variety of individuals) |
+| **Local vs. Global Search** | Local opt. process (follows grad. of perf. fct.) | Global search (due to variety of individuals) |
 | **Applicable to** | Differentiable models | Any model, even rule-based controllers (Hebbian...) |
-
-
 
 :::
 
 :::question
 
-***What's the main issue with RL that I'm trying to solve with this project?***
+**What's the main issue with RL that I'm trying to solve with this project?**
 
 :::
