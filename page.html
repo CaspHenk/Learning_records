@@ -8,8 +8,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$']],   // $...$ をインライン
-        displayMath: [['$$', '$$']] // $$...$$ をブロック
+        inlineMath: [['$', '$']],   // $...$ inline
+        displayMath: [['$$', '$$']] // $$...$$ block
       },
       options: {
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
@@ -138,12 +138,8 @@
           inlineMath.push(p);
           return `@@INLINEMATH${inlineMath.length - 1}@@`;
         });
-        console.log("Before paper:", text);
-
         // --- Markdown → HTML ---
         let html = marked.parse(text);
-
-        console.log("Bhtml paper:", html);
 
         html = html.replace(/@@BLOCKMATH(\d+)@@/g, (match, idx) => `$$${blockMath[idx]}$$`);
         html = html.replace(/@@INLINEMATH(\d+)@@/g, (match, idx) => `$${inlineMath[idx]}$`);
@@ -177,12 +173,10 @@
         if (window.MathJax) {
           MathJax.typesetClear && MathJax.typesetClear();
           MathJax.typesetPromise([contentDiv])
-            .then(() => console.log("✅ MathJax rendered"))
-            .catch(err => console.error("❌ MathJax error:", err));
+            .catch(err => console.error("MathJax error:", err));
         }
       })
       .catch(err => {
-        console.error(err);
         contentDiv.innerHTML = "<p>Error loading content.</p>";
       });
   </script>

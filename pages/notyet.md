@@ -1,10 +1,10 @@
-# だたいま作成中
+# Under construction
 
-ちょっと待ってね
+Come back later!
 
-## 見出し
-### 見出し
-#### 見出し
+## Heading
+### Heading
+#### Heading
 
 
 $$
@@ -31,7 +31,7 @@ You can combine the encoder and decoder losses for a hybrid model.
 ```python
 import numpy as np
 
-print("Hello poopoosqueezer knowledge bank")
+print("Hello World!")
 ```
 :::
 
